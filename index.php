@@ -171,10 +171,57 @@ function greetstudent($students){
 greetstudent($students);
 
 
-                               //* SUPERGLOBAL *//
+                        //* SUPERGLOBAL *//
 // 1.$_POST & $SERVER
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    $user = $_POST['username'];
-    echo " Hello, $user! ";
+if (isset($_POST['submit'])){
+
+    // get datas from form
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    // hash pasword for more security
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // simple verification 
+        echo '<script type="text/javascript">';
+        echo 'alert("SUCCESS: Form submitted succesfully!");';
+        echo '</script>';
+        echo "<h3 style='color:green;'></h3>";
 }
+
+
+               //* CONNECT PHP TO XAMPP SERVER *//
+//Database Connection Parameters
+$servername = "localhost";
+$username = "root";
+$db_password = "";
+$dbname = "php";
+
+// conection to database
+$conn = new mysqli($servername, $username, $db_password, $dbname);
+
+// chek connection
+if ($conn->connect_error){
+    die("connection failed: " . $conn->connect_error);
+}
+
+//prepare INSERT command
+$sql = "INSERT INTO users (NAME , EMAIL , PASSWORD) VALUES (?,?,?)";
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param("sss", $name , $email , $hashed_password);
+
+if ($stmt->execute()){
+    $status = "success";
+} else {
+    $status = "error";
+}
+
+
+$stmt->close();
+$conn->close();
+
+header("location : form.php");
+exit();
 ?>
